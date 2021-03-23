@@ -1,0 +1,5 @@
+.idea/
+__pycache__/
+venv/
+dz15.py
+main.py
