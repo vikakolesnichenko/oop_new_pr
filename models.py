@@ -1,11 +1,28 @@
 from datetime import date, timedelta
 
+class UnableToWorkException(Exception):
+    pass
 
 class Employee:
 
-    def __init__(self, name, email, zp):
+    def safe_email(self, email):
+        file = 'emails.txt'
+        f1 = open(file, 'a')
+        f1.write(str(self.email) + '\n')
+        f1.close()
+
+    def validate_email(self):
+        file = 'emails.txt'
+        f2 = open(file, 'r')
+        for email in f2:
+            if email == self.email:
+                raise ValueError('this email already exists')
+
+    def __init__(self, name, fullname, email, zp):
         self.name = name
+        self.fullname = fullname
         self.email = email
+        self.validate_email()
         self.zp = zp
 
     def work(self):
@@ -17,6 +34,17 @@ class Employee:
         diff = (now - month_start).days + 1
         count_sell = zp * diff
         return count_sell
+
+    def check_salary_apgr(self, zp):
+        now = date.today()
+        month_start = date(now.year, now.month, 1)
+        weekend = [5, 6]
+        diff = (now - month_start).days + 1
+        day_count = 0
+        for day in range(diff):
+            if (month_start + timedelta(day)).weekday() not in weekend:
+                day_count += 1
+        return day_count
 
     def __gt__(self, other):
         return self.zp > other.zp
@@ -36,6 +64,9 @@ class Employee:
     def __ne__(self, other):
         return self.zp != other.zp
 
+    @property
+    def full_info(self):
+        return f"{self.__class__.__name__}, {self.name}, {self.fullname}, {self."
 
 class Recruiter(Employee):
 
@@ -90,6 +121,9 @@ class Candidate:
         self.technologies = technologies
         self.main_skill = main_skill
         self.main_skill_grade = main_skill_grade
+
+    def work(self):
+        raise UnableToWorkException('I’m not hired yet, lol')
 
 
 class Vacancy:
